@@ -10,8 +10,7 @@ export default function Credits({ onBack }: { onBack: () => void }) {
         <h1 className="font-display text-4xl font-bold">Credits</h1>
         <p className="mt-4 text-lg text-white/85">
           <strong>The Last Light of Christmas</strong> — an original Christmas detective adventure. All characters, scenes and illustrations are
-          original artwork drawn for this game. Music is a music-box arrangement of the public-domain carol “Jingle Bells”, synthesised in your
-          browser.
+          original artwork drawn for this game. Music is an original music-box theme of bells and soft chords, synthesised in your browser.
         </p>
         <h2 className="mt-8 font-display text-2xl font-semibold text-gold">Photograph</h2>
         <p className="mt-2 text-white/85">

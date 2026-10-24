@@ -154,100 +154,66 @@ export function playMorse(code: string, unitMs = 95) {
   return (t - ac.currentTime) * 1000
 }
 
-// "Jingle Bells" chorus (public domain), played softly as a music-box loop.
-const N: Record<string, number> = {
-  C4: 261.63,
-  D4: 293.66,
-  E4: 329.63,
-  F4: 349.23,
-  G4: 392,
-  A4: 440,
-  B4: 493.88,
-  C5: 523.25,
-  D5: 587.33,
-  E5: 659.25,
-  F5: 698.46,
-  G5: 783.99,
-  C3: 130.81,
-  F3: 174.61,
-  G3: 196,
+// Music-box theme: bell arpeggios over soft pad chords (D – Bm – G – A), looped.
+const NOTE_INDEX: Record<string, number> = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
+function freq(note: string) {
+  const [, name, octave] = note.match(/^([A-G]#?)(\d)$/)!
+  return 440 * 2 ** ((NOTE_INDEX[name] + (Number(octave) + 1) * 12 - 69) / 12)
 }
-const MELODY: [string | null, number][] = [
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 2],
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 2],
-  ['E5', 1],
-  ['G5', 1],
-  ['C5', 1.5],
-  ['D5', 0.5],
-  ['E5', 4],
-  ['F5', 1],
-  ['F5', 1],
-  ['F5', 1.5],
-  ['F5', 0.5],
-  ['F5', 1],
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 0.5],
-  ['E5', 0.5],
-  ['E5', 1],
-  ['D5', 1],
-  ['D5', 1],
-  ['E5', 1],
-  ['D5', 2],
-  ['G5', 2],
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 2],
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 2],
-  ['E5', 1],
-  ['G5', 1],
-  ['C5', 1.5],
-  ['D5', 0.5],
-  ['E5', 4],
-  ['F5', 1],
-  ['F5', 1],
-  ['F5', 1.5],
-  ['F5', 0.5],
-  ['F5', 1],
-  ['E5', 1],
-  ['E5', 1],
-  ['E5', 0.5],
-  ['E5', 0.5],
-  ['G5', 1],
-  ['G5', 1],
-  ['F5', 1],
-  ['D5', 1],
-  ['C5', 4],
-  [null, 4],
-]
-const BASS = ['C3', 'C3', 'F3', 'G3', 'C3', 'C3', 'F3', 'C3', 'C3']
-const BEAT = 0.3
 
-function scheduleMusic() {
+const CHORDS = [
+  ['D3', 'F#3', 'A3', 'D4'],
+  ['B2', 'D3', 'F#3', 'B3'],
+  ['G2', 'B2', 'D3', 'G3'],
+  ['A2', 'C#3', 'E3', 'A3'],
+]
+const BELLS = ['F#5', 'A5', 'D6', 'A5', 'D5', 'F#5', 'B5', 'F#5', 'B4', 'D5', 'G5', 'D5', 'C#5', 'E5', 'A5', 'E5']
+const BEAT = 0.62
+
+function bell(f: number, start: number, dur: number, vol: number) {
+  ;[
+    [1, 1],
+    [2, 0.5],
+    [2.76, 0.32],
+    [5.4, 0.12],
+    [8.9, 0.05],
+  ].forEach(([ratio, level], i) => tone(f * ratio, start, dur / (1 + i * 0.6), { vol: vol * level, dest: musicGain!, attack: 0.015 }))
+}
+
+function pad(notes: string[], start: number, dur: number, vol: number) {
   const ac = audio()
   if (!ac || !musicGain) return
-  let t = ac.currentTime + 0.1
-  let beats = 0
-  for (const [note, len] of MELODY) {
-    if (note) {
-      tone(N[note], t, len * BEAT * 1.6, { type: 'triangle', vol: 0.32, dest: musicGain })
-      tone(N[note] * 2, t, len * BEAT * 0.8, { type: 'sine', vol: 0.07, dest: musicGain })
-    }
-    if (beats % 4 === 0) {
-      const bass = BASS[Math.floor(beats / 4) % BASS.length]
-      tone(N[bass], t, BEAT * 3.5, { type: 'sine', vol: 0.3, dest: musicGain })
-    }
-    t += len * BEAT
-    beats += len
-  }
-  const total = MELODY.reduce((s, [, l]) => s + l, 0) * BEAT * 1000
-  musicTimer = window.setTimeout(scheduleMusic, total)
+  const filter = ac.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.frequency.value = 1100
+  const g = ac.createGain()
+  g.gain.setValueAtTime(0.0001, start)
+  g.gain.linearRampToValueAtTime(vol, start + dur * 0.3)
+  g.gain.linearRampToValueAtTime(0.0001, start + dur * 1.05)
+  filter.connect(g)
+  g.connect(musicGain)
+  notes.forEach((note, i) => {
+    const osc = ac.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.value = freq(note)
+    osc.detune.value = i % 2 ? 6 : -6
+    osc.connect(filter)
+    osc.start(start)
+    osc.stop(start + dur * 1.1)
+  })
+}
+
+function scheduleMusic(start?: number) {
+  const ac = audio()
+  if (!ac || !musicGain) return
+  let t = start ?? ac.currentTime + 0.1
+  CHORDS.forEach((chord, i) => {
+    pad(chord, t, BEAT * 4, 0.12)
+    for (let b = 0; b < 4; b++) bell(freq(BELLS[i * 4 + b]), t + b * BEAT, BEAT * 2.5, 0.16)
+    t += BEAT * 4
+  })
+  // Queue the next pass slightly early so the loop joins seamlessly.
+  musicTimer = window.setTimeout(() => scheduleMusic(t), Math.max(50, (t - ac.currentTime - 0.3) * 1000))
 }
 
 export function startMusic() {
