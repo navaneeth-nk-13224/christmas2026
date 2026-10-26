@@ -154,6 +154,7 @@ export function MorsePuzzle({ onSolved }: { onSolved: () => void }) {
               </div>
             ))}
           </div>
+          <p className="mt-2 text-center font-term text-lg text-[#3DDC97]/50">Hint: it’s Morse code. Short flash = dot, long flash = dash.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <button type="button" className="btn btn-sm !bg-[#1E4A36] !text-[#BFF5DA]" onClick={replay}>
               ↻ Replay

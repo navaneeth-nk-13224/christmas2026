@@ -43,6 +43,7 @@ function AlphabetStrip() {
           })}
         </div>
       </div>
+      <p className="mt-2 text-center text-sm text-navy/50">Hint: it’s a Caesar cipher. Every letter is shifted the same number of places.</p>
     </div>
   )
 }

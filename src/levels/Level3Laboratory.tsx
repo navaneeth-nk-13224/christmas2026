@@ -361,17 +361,14 @@ export default function Level3Laboratory({ onComplete }: LevelProps) {
       {phase === 'intro' && <DialogueBox lines={D.l3Intro} onDone={() => setPhase('signal')} />}
       {phase === 'signal' && signalDialog && <DialogueBox lines={D.l3Signal} onDone={() => setPhase('explore')} />}
       {phase === 'done' && !open && <DialogueBox lines={D.l3Done} onDone={onComplete} />}
-      <InspectionModal open={open} onClose={() => setOpen(false)} title="Laboratory computer" tone="dark" size="lg">
+      <InspectionModal open={open} onClose={() => setOpen(false)} title="Laboratory computer" tone="dark" size="lg" done={phase === 'done'}>
         {phase === 'done' ? (
           <div className="overflow-hidden rounded-xl border-4 border-[#2B3442]">
             <FrozenLakeMap reveal />
           </div>
         ) : (
           <MorsePuzzle
-            onSolved={() => {
-              setOpen(false)
-              setPhase('done')
-            }}
+            onSolved={() => setPhase('done')}
           />
         )}
       </InspectionModal>

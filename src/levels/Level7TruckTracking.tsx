@@ -317,12 +317,9 @@ export default function Level7TruckTracking({ onComplete }: LevelProps) {
           <FootageFrame index={5} className="h-full w-full" grain={false} />
         </ZoomPan>
       </InspectionModal>
-      <InspectionModal open={view === 'computer'} onClose={() => setView(null)} title="Security room computer" size="lg">
+      <InspectionModal open={view === 'computer'} onClose={() => setView(null)} title="Security room computer" size="lg" done={phase === 'done'}>
         <LogisticsPuzzle
-          onSolved={() => {
-            setView(null)
-            setPhase('done')
-          }}
+          onSolved={() => setPhase('done')}
         />
       </InspectionModal>
     </div>

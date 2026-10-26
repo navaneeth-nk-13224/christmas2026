@@ -264,13 +264,11 @@ export default function Level2PostOffice({ onComplete }: LevelProps) {
         onClose={() => setOpen(false)}
         title={opened ? 'Letter in the parcel' : 'Parcel for Santa'}
         size={opened ? 'lg' : 'md'}
+        done={phase === 'done'}
       >
         {opened || phase === 'done' ? (
           <CoordinatePuzzle
-            onSolved={() => {
-              setOpen(false)
-              setPhase('done')
-            }}
+            onSolved={() => setPhase('done')}
           />
         ) : (
           <div className="flex flex-col items-center">

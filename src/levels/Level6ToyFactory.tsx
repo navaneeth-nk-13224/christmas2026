@@ -194,6 +194,8 @@ function FactoryScene({ onMonitor, observe }: { onMonitor: () => void; observe: 
 export default function Level6ToyFactory({ onComplete }: LevelProps) {
   const [phase, setPhase] = useLevelPhase<'intro' | 'explore' | 'done'>(6, 'intro')
   const [open, setOpen] = useState(false)
+  // Keep the just-finished playback on screen instead of restarting it.
+  const [justSolved, setJustSolved] = useState(false)
   const [note, observe] = useObservation()
 
   return (
@@ -204,13 +206,23 @@ export default function Level6ToyFactory({ onComplete }: LevelProps) {
       {note}
       {phase === 'intro' && <DialogueBox lines={D.l6Intro} onDone={() => setPhase('explore')} />}
       {phase === 'done' && !open && <DialogueBox lines={D.l6Done} onDone={onComplete} />}
-      <InspectionModal open={open} onClose={() => setOpen(false)} title="Recovered footage" tone="dark" size="xl">
-        {phase === 'done' ? (
+      <InspectionModal
+        open={open}
+        onClose={() => {
+          setOpen(false)
+          setJustSolved(false)
+        }}
+        title="Recovered footage"
+        tone="dark"
+        size="xl"
+        done={phase === 'done'}
+      >
+        {phase === 'done' && !justSolved ? (
           <Playback onDone={() => undefined} />
         ) : (
           <FootagePuzzle
             onSolved={() => {
-              setOpen(false)
+              setJustSolved(true)
               setPhase('done')
             }}
           />

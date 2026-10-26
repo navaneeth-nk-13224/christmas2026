@@ -371,7 +371,8 @@ export default function Level8Warehouse({ onComplete }: LevelProps) {
   // Short, automatic story beats between the interactive moments.
   useEffect(() => {
     let t: number | undefined
-    if (phase === 'unlocked') t = window.setTimeout(() => setPhase('freeing'), 1500)
+    // Wait for the player to close the keypad before the rescue plays out.
+    if (phase === 'unlocked' && modal === null) t = window.setTimeout(() => setPhase('freeing'), 1500)
     else if (phase === 'freeing') t = window.setTimeout(() => setPhase('rescue'), 2000)
     else if (phase === 'caught') {
       playSfx('shutter')
@@ -385,7 +386,7 @@ export default function Level8Warehouse({ onComplete }: LevelProps) {
     return () => clearTimeout(t)
     // onComplete is stable for the life of this level.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, setPhase])
+  }, [phase, setPhase, modal])
 
   const inOffice = phase === 'freeing' || phase === 'rescue' || phase === 'lockdown'
 
@@ -438,13 +439,8 @@ export default function Level8Warehouse({ onComplete }: LevelProps) {
           </motion.div>
         )}
       </AnimatePresence>
-      <InspectionModal open={modal === 'keypad'} onClose={() => setModal(null)} title="Office door keypad" tone="dark" size="md">
-        <Keypad
-          onUnlock={() => {
-            setModal(null)
-            setPhase('unlocked')
-          }}
-        />
+      <InspectionModal open={modal === 'keypad'} onClose={() => setModal(null)} title="Office door keypad" tone="dark" size="md" done={phase === 'unlocked'}>
+        <Keypad onUnlock={() => setPhase('unlocked')} />
       </InspectionModal>
       <InspectionModal open={modal === 'calendar'} onClose={() => setModal(null)} title="Wall calendar" size="lg">
         <WallCalendar />

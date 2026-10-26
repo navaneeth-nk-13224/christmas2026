@@ -2,7 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, type ReactNode } from 'react'
 import { playSfx } from '../audio/sound'
 
-/** Full-screen close-up view used for every clue and puzzle. Always has a close button. */
+/**
+ * Full-screen close-up view used for every clue and puzzle. Always has a close button.
+ * Once `done`, a Continue button appears; the modal never closes on its own.
+ */
 export function InspectionModal({
   open,
   onClose,
@@ -10,6 +13,7 @@ export function InspectionModal({
   children,
   tone = 'light',
   size = 'lg',
+  done = false,
 }: {
   open: boolean
   onClose: () => void
@@ -17,6 +21,7 @@ export function InspectionModal({
   children: ReactNode
   tone?: 'light' | 'dark'
   size?: 'md' | 'lg' | 'xl'
+  done?: boolean
 }) {
   useEffect(() => {
     if (!open) return
@@ -74,6 +79,20 @@ export function InspectionModal({
               </button>
             </div>
             {children}
+            {done && (
+              <motion.div className="mt-5 flex justify-center" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                <button
+                  type="button"
+                  className="btn btn-green"
+                  onClick={() => {
+                    playSfx('click')
+                    onClose()
+                  }}
+                >
+                  Continue
+                </button>
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       )}

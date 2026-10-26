@@ -288,7 +288,7 @@ export default function Level1Workshop({ onComplete }: LevelProps) {
       {note}
       {phase === 'intro' && <DialogueBox lines={D.l1Intro} onDone={() => setPhase('explore')} />}
       {phase === 'done' && !open && <DialogueBox lines={D.l1Done} onDone={onComplete} />}
-      <InspectionModal open={open} onClose={() => setOpen(false)} title="A torn ticket" size="xl">
+      <InspectionModal open={open} onClose={() => setOpen(false)} title="A torn ticket" size="xl" done={phase === 'done'}>
         {phase === 'done' ? (
           <div className="mx-auto max-w-[600px]">
             <svg viewBox="0 0 600 260" className="w-full drop-shadow-lg">
@@ -297,10 +297,7 @@ export default function Level1Workshop({ onComplete }: LevelProps) {
           </div>
         ) : (
           <TicketPuzzle
-            onSolved={() => {
-              setOpen(false)
-              setPhase('done')
-            }}
+            onSolved={() => setPhase('done')}
           />
         )}
       </InspectionModal>

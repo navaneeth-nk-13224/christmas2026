@@ -256,15 +256,12 @@ export default function Level5FamilyHome({ onComplete }: LevelProps) {
       {note}
       {phase === 'intro' && <DialogueBox lines={D.l5Intro} onDone={() => setPhase('note')} />}
       {phase === 'done' && !open && <DialogueBox lines={D.l5Done} onDone={onComplete} />}
-      <InspectionModal open={open} onClose={() => setOpen(false)} title="Nicholas's note" size="lg">
+      <InspectionModal open={open} onClose={() => setOpen(false)} title="Nicholas's note" size="lg" done={phase === 'done'}>
         {phase === 'done' ? (
           <SecretNote decoded />
         ) : (
           <CipherPuzzle
-            onSolved={() => {
-              setOpen(false)
-              setPhase('done')
-            }}
+            onSolved={() => setPhase('done')}
           />
         )}
       </InspectionModal>

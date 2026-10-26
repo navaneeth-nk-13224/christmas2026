@@ -231,12 +231,9 @@ export default function Level4FrozenLake({ onComplete }: LevelProps) {
         />
       )}
       {phase === 'done' && !open && <DialogueBox lines={D.l4Done} onDone={onComplete} />}
-      <InspectionModal open={open} onClose={() => setOpen(false)} title="Family photograph" size="xl">
+      <InspectionModal open={open} onClose={() => setOpen(false)} title="Family photograph" size="xl" done={phase === 'done'}>
         <LandmarkPuzzle
-          onSolved={() => {
-            setOpen(false)
-            setPhase('done')
-          }}
+          onSolved={() => setPhase('done')}
         />
       </InspectionModal>
     </div>
